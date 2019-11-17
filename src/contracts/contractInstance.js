@@ -1,5 +1,5 @@
 
-import web3 from './web3';
+import web3 from 'web3';
 
 
 const address = "";

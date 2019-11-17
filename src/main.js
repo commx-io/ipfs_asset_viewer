@@ -9,6 +9,7 @@ import
 }
   from 'bootstrap-vue/es/components';
 import App from './App.vue';
+
 import zilpay from './contracts/zilpay';
 import contract from './contracts/contractInstance';
 
@@ -54,10 +55,10 @@ new Vue({
      * store it on currentAccount variable.
      */
     async updateAccount() {
-      this.walletConneted = zilPay.wallet.isEnable;
+      this.walletConneted = await zilPay.wallet.isEnable;
 
       if (this.walletConnected) {
-        this.currentAccount = zilpay.wallet.defaultAccount.bech32;
+        this.currentAccount = await zilpay.wallet.defaultAccount.bech32;
       }
     },
     /**
