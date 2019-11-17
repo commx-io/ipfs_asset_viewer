@@ -5,7 +5,8 @@
       <div id="upload">
         <div v-if="this.$root.$data.loading === false">
           <h1>Post Here!</h1>
-          <h4>share your memories.</h4>
+          <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4>
+          <h4>Account connected: {{currentAccount}}</h4>
 
           <!-- Form for file choose, caption text and submission -->
           <form

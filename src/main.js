@@ -9,7 +9,7 @@ import
 }
   from 'bootstrap-vue/es/components';
 import App from './App.vue';
-import web3 from './contracts/web3';
+import zilpay from './contracts/zilpay';
 import contract from './contracts/contractInstance';
 
 
@@ -32,7 +32,8 @@ new Vue({
   data: {
     currentPosts: [],
     currentAccount: '',
-    loading: true,
+    walletConnected: false,
+    loading: true,  
     contract,
   },
   /**
@@ -53,9 +54,11 @@ new Vue({
      * store it on currentAccount variable.
      */
     async updateAccount() {
-      const accounts = await web3.eth.getAccounts();
-      const account = accounts[0];
-      this.currentAccount = account;
+      this.walletConneted = zilPay.wallet.isEnable;
+
+      if (this.walletConnected) {
+        this.currentAccount = zilpay.wallet.defaultAccount.bech32;
+      }
     },
     /**
      * using the Smart Contract instance:
