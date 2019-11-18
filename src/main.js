@@ -1,31 +1,34 @@
 import Vue from 'vue';
+import App from './App.vue';
+
 import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
-import 'babel-polyfill';
+
 import
 {
-  Nav, Image, Card, Layout, Button, Modal, FormFile,
+  NavPlugin, ImagePlugin, BCard, LayoutPlugin, ModalPlugin, FormFilePlugin,
 }
-  from 'bootstrap-vue/es/components';
-import App from './App.vue';
+  from 'bootstrap-vue';
 
-import zilpay from './contracts/zilpay';
+
 import contract from './contracts/contractInstance';
 
+// const contractAddress = '4421293eda037ac6f6f7c322a5552d91696e3c6f';
 
 /**
  * injects bootstrap libraries
  * in Vue instance.
  */
+Vue.config.productionTip = false
 Vue.use(BootstrapVue);
-Vue.use(Nav);
-Vue.use(Image);
-Vue.use(Card);
-Vue.use(FormFile);
-Vue.use(Layout);
-Vue.use(Button);
-Vue.use(Modal);
+Vue.use(NavPlugin);
+Vue.use(ImagePlugin);
+Vue.use(BCard);
+Vue.use(FormFilePlugin);
+Vue.use(LayoutPlugin);
+Vue.use(BButton);
+Vue.use(ModalPlugin);
 
 // Vue instance
 new Vue({
@@ -43,7 +46,7 @@ new Vue({
    */
   async created() {
     await this.updateAccount();
-    await this.getPosts();
+    // await this.getPosts();
   },
   transformToRequire: {
     img: 'src',
@@ -55,11 +58,15 @@ new Vue({
      * store it on currentAccount variable.
      */
     async updateAccount() {
-      this.walletConneted = await zilPay.wallet.isEnable;
+      this.walletConnected = window.zilPay.wallet.isConnect;
+      console.log(`the wallet is connected ${this.walletConnected}`);
 
-      if (this.walletConnected) {
-        this.currentAccount = await zilpay.wallet.defaultAccount.bech32;
-      }
+      // if (this.walletConnected) {
+      //   this.currentAccount = await zilpay.wallet.defaultAccount.bech32;
+      //   console.log(`the currentAccount ${this.currentAccount}`);
+      // } else {
+      //   window.zilPay.wallet.connect(); 
+      // }
     },
     /**
      * using the Smart Contract instance:
@@ -110,4 +117,4 @@ new Vue({
     },
   },
   render: h => h(App),
-});
+}).$mount('#app')

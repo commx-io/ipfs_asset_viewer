@@ -5,7 +5,7 @@
       <div id="upload">
         <div v-if="this.$root.$data.loading === false">
           <h1>Post Here!</h1>
-          <!-- <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4> -->
+          <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4>
 
           <!-- Form for file choose, caption text and submission -->
           <form
@@ -69,15 +69,29 @@
 
 <script>
 import ipfs from './contracts/ipfs';
+import ZilPayMixin from './mixins/ZilPay'
 
 export default {
   name: 'App',
+  mixins: [ZilPayMixin],
   // data variables
   data() {
     return {
       buffer: '',
       caption: '',
     };
+  },
+  mounted() {
+    window.addEventListener("load", async () => {
+      const test = await this.zilpayTest();
+      if (test === this.code.notZilPay) {
+        this.$refs[this.code.notZilPay].show();
+      } else if (test === this.code.notEnable) {
+        this.$refs[this.code.notEnable].show();
+      } else if (test === this.code.notConnect) {
+        await window.zilPay.wallet.connect();
+      }
+    });
   },
   methods: {
     /* used to catch chosen image &
