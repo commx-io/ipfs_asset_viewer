@@ -68,12 +68,12 @@
 </template>
 
 <script>
-import ipfs from './contracts/ipfs';
+import ipfs from './mixins/ipfs';
 import ZilPayMixin from './mixins/ZilPay'
 
 export default {
   name: 'App',
-  mixins: [ZilPayMixin],
+  mixins: [ZilPayMixin, ipfs],
   // data variables
   data() {
     return {

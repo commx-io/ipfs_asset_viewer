@@ -7,7 +7,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 import
 {
-  NavPlugin, ImagePlugin, BCard, LayoutPlugin, ModalPlugin, FormFilePlugin,
+  NavPlugin, ImagePlugin, BCard, BButton, LayoutPlugin, ModalPlugin, FormFilePlugin,
 }
   from 'bootstrap-vue';
 
