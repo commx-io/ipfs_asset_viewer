@@ -2,10 +2,10 @@ export default {
   data() {
     return {
       code: {
-        notZilPay: 'isZilPay',
-        notEnable: 'isEnable',
-        notConnect: 'notConnect'
-      },
+        notZilPay: "isZilPay",
+        notEnable: "isEnable",
+        notConnect: "notConnect"
+      }
     };
   },
   methods: {
@@ -29,15 +29,15 @@ export default {
       return toChecksumAddress(address);
     },
     zilpayTest() {
-      if (typeof window.zilPay === 'undefined') {
+      if (typeof window.zilPay === "undefined") {
         return this.code.notZilPay;
       } else if (!window.zilPay.wallet.isEnable) {
         return this.code.notEnable;
       } else if (!window.zilPay.wallet.isConnect) {
         return this.code.notConnect;
       }
-      
+
       return true;
-    },
+    }
   }
 };

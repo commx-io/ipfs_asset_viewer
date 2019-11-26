@@ -1,11 +1,38 @@
 <template>
   <div id="app">
     <div style="display: flex; flex-direction: column;">
+
+
+      <b-modal :ref="code.notZilPay"
+              hide-footer
+              title="ZilPay is not installed!">
+        <b-row class="justify-content-md-center">
+          <img src="/img/home.png">
+        </b-row>
+
+        <b-row class="justify-content-md-center">
+          <a href="https://chrome.google.com/webstore/detail/zilpay/klnaejjgbibmhlephnhpmaofohgkpgkd"
+            target="_blank"
+            class="btn btn-success m-2">FireFox</a>
+          <a href="https://addons.mozilla.org/en-GB/firefox/addon/zilpay/"
+            target="_blank"
+            class="btn btn-success m-2">Chrome</a>
+        </b-row>
+      </b-modal>
+
+      <b-modal :ref="code.notEnable"
+              hide-footer
+              title="ZilPay is not Enable!">
+        <b-row class="justify-content-md-center">
+          <img src="/img/lock.png">
+        </b-row>
+      </b-modal>
+
       <!-- Upload Interface -->
       <div id="upload">
         <div v-if="this.$root.$data.loading === false">
           <h1>Post Here!</h1>
-          <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4>
+          <!-- <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4> -->
 
           <!-- Form for file choose, caption text and submission -->
           <form
@@ -84,6 +111,7 @@ export default {
   mounted() {
     window.addEventListener("load", async () => {
       const test = await this.zilpayTest();
+
       if (test === this.code.notZilPay) {
         this.$refs[this.code.notZilPay].show();
       } else if (test === this.code.notEnable) {

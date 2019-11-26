@@ -1,18 +1,11 @@
-import Vue from 'vue';
-import App from './App.vue';
+import Vue from "vue";
+import App from "./App.vue";
 
-import BootstrapVue from 'bootstrap-vue';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
+import BootstrapVue from "bootstrap-vue";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
 
-import
-{
-  NavPlugin, ImagePlugin, BCard, BButton, LayoutPlugin, ModalPlugin, FormFilePlugin,
-}
-  from 'bootstrap-vue';
-
-
-import contract from './contracts/contractInstance';
+import contract from "./contracts/contractInstance";
 
 // const contractAddress = '4421293eda037ac6f6f7c322a5552d91696e3c6f';
 
@@ -20,25 +13,19 @@ import contract from './contracts/contractInstance';
  * injects bootstrap libraries
  * in Vue instance.
  */
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+
 Vue.use(BootstrapVue);
-Vue.use(NavPlugin);
-Vue.use(ImagePlugin);
-Vue.use(BCard);
-Vue.use(FormFilePlugin);
-Vue.use(LayoutPlugin);
-Vue.use(BButton);
-Vue.use(ModalPlugin);
 
 // Vue instance
 new Vue({
-  el: '#app',
+  el: "#app",
   data: {
     currentPosts: [],
-    currentAccount: '',
+    currentAccount: "",
     walletConnected: false,
-    loading: true,  
-    contract,
+    loading: true,
+    contract
   },
   /**
    * calls functions for getting
@@ -49,8 +36,8 @@ new Vue({
     // await this.getPosts();
   },
   transformToRequire: {
-    img: 'src',
-    image: 'xlink:href',
+    img: "src",
+    image: "xlink:href"
   },
   methods: {
     /**
@@ -58,14 +45,12 @@ new Vue({
      * store it on currentAccount variable.
      */
     async updateAccount() {
-      this.walletConnected = window.zilPay.wallet.isConnect;
-      console.log(`the wallet is connected ${this.walletConnected}`);
 
       // if (this.walletConnected) {
       //   this.currentAccount = await zilpay.wallet.defaultAccount.bech32;
       //   console.log(`the currentAccount ${this.currentAccount}`);
       // } else {
-      //   window.zilPay.wallet.connect(); 
+      //   window.zilPay.wallet.connect();
       // }
     },
     /**
@@ -81,23 +66,28 @@ new Vue({
       this.loading = false;
       const posts = [];
       const counter = await contract.methods.getCounter().call({
-        from: this.currentAccount,
+        from: this.currentAccount
       });
 
       if (counter !== null) {
         const hashes = [];
         const captions = [];
         for (let i = counter; i >= 1; i -= 1) {
-          hashes.push(contract.methods.getHash(i).call({
-            from: this.currentAccount,
-          }));
+          hashes.push(
+            contract.methods.getHash(i).call({
+              from: this.currentAccount
+            })
+          );
         }
 
         const postHashes = await Promise.all(hashes);
 
         for (let i = 0; i < postHashes.length; i += 1) {
-          captions.push(fetch(`https://gateway.ipfs.io/ipfs/${postHashes[i].text}`)
-            .then(res => res.text()));
+          captions.push(
+            fetch(
+              `https://gateway.ipfs.io/ipfs/${postHashes[i].text}`
+            ).then(res => res.text())
+          );
         }
 
         const postCaptions = await Promise.all(captions);
@@ -107,14 +97,14 @@ new Vue({
             id: i,
             key: `key${i}`,
             caption: postCaptions[i],
-            src: `https://gateway.ipfs.io/ipfs/${postHashes[i].img}`,
+            src: `https://gateway.ipfs.io/ipfs/${postHashes[i].img}`
           });
         }
 
         this.currentPosts = posts;
         this.loading = false;
       }
-    },
+    }
   },
-  render: h => h(App),
-}).$mount('#app')
+  render: h => h(App)
+}).$mount("#app");
