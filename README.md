@@ -17,10 +17,10 @@ npm install
 Serve the application with hot reload in a development environment via:
 
 ```bash
-npm run dev
+npm run serve
 ```
 
 ## Built With
 
-* [Vue.js](https://vuejs.org/) - The Javascript framework used
+* [Vue.js](https://vuejs.org/) - The Javascript framework Vue-cli is used
 * [IPFS](https://docs.ipfs.io/) - InterPlanetary File System for peer-to-peer decentralized data storage.

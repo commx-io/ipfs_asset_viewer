@@ -31,6 +31,7 @@
       <!-- Upload Interface -->
       <div id="upload">
         <div v-if="this.$root.$data.loading === false">
+          <p class="lead">Wallet address: {{wallet.account}}</p> 
           <h1>Post Here!</h1>
           <!-- <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4> -->
 
@@ -106,6 +107,9 @@ export default {
     return {
       buffer: '',
       caption: '',
+      wallet: {
+        account: null
+      },
     };
   },
   mounted() {
@@ -120,8 +124,25 @@ export default {
         await window.zilPay.wallet.connect();
       }
     });
+
+    try {
+      this.observableAccount();
+    } catch (err) {
+      /* eslint-disable */
+    }
+
+    this.$root.loading = false;
   },
   methods: {
+    observableAccount() {
+      setTimeout(() => {
+        this.wallet.account = window.zilPay.wallet.defaultAccount.bech32;
+        window.zilPay.wallet.observableAccount().subscribe(account => {
+          console.log('firing off account refresher');
+          this.wallet.account = account.bech32;
+        });
+      }, 1000);
+    },
     /* used to catch chosen image &
      * convert it to ArrayBuffer.
      */

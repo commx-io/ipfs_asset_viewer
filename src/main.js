@@ -23,7 +23,6 @@ new Vue({
   data: {
     currentPosts: [],
     currentAccount: "",
-    walletConnected: false,
     loading: true,
     contract
   },
@@ -31,10 +30,6 @@ new Vue({
    * calls functions for getting
    * account & current posts.
    */
-  async created() {
-    await this.updateAccount();
-    // await this.getPosts();
-  },
   transformToRequire: {
     img: "src",
     image: "xlink:href"
@@ -44,15 +39,7 @@ new Vue({
      * gets current account via contract and
      * store it on currentAccount variable.
      */
-    async updateAccount() {
 
-      // if (this.walletConnected) {
-      //   this.currentAccount = await zilpay.wallet.defaultAccount.bech32;
-      //   console.log(`the currentAccount ${this.currentAccount}`);
-      // } else {
-      //   window.zilPay.wallet.connect();
-      // }
-    },
     /**
      * using the Smart Contract instance:
      * getCounter() - gets the length of total posts
