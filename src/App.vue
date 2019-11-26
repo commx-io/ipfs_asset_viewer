@@ -1,50 +1,48 @@
 <template>
   <div id="app">
     <div style="display: flex; flex-direction: column;">
-
-
-      <b-modal :ref="code.notZilPay"
-              hide-footer
-              title="ZilPay is not installed!">
+      <b-modal
+        :ref="code.notZilPay"
+        hide-footer
+        title="ZilPay is not installed!"
+      >
         <b-row class="justify-content-md-center">
-          <img src="/img/home.png">
+          <img src="/img/home.png" />
         </b-row>
 
         <b-row class="justify-content-md-center">
-          <a href="https://chrome.google.com/webstore/detail/zilpay/klnaejjgbibmhlephnhpmaofohgkpgkd"
+          <a
+            href="https://chrome.google.com/webstore/detail/zilpay/klnaejjgbibmhlephnhpmaofohgkpgkd"
             target="_blank"
-            class="btn btn-success m-2">FireFox</a>
-          <a href="https://addons.mozilla.org/en-GB/firefox/addon/zilpay/"
+            class="btn btn-success m-2"
+            >FireFox</a
+          >
+          <a
+            href="https://addons.mozilla.org/en-GB/firefox/addon/zilpay/"
             target="_blank"
-            class="btn btn-success m-2">Chrome</a>
+            class="btn btn-success m-2"
+            >Chrome</a
+          >
         </b-row>
       </b-modal>
 
-      <b-modal :ref="code.notEnable"
-              hide-footer
-              title="ZilPay is not Enable!">
+      <b-modal :ref="code.notEnable" hide-footer title="ZilPay is not Enable!">
         <b-row class="justify-content-md-center">
-          <img src="/img/lock.png">
+          <img src="/img/lock.png" />
         </b-row>
       </b-modal>
 
       <!-- Upload Interface -->
       <div id="upload">
         <div v-if="this.$root.$data.loading === false">
-          <p class="lead">Wallet address: {{wallet.account}}</p> 
+          <p class="lead">Wallet address: {{ wallet.account }}</p>
           <h1>Post Here!</h1>
           <!-- <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4> -->
 
           <!-- Form for file choose, caption text and submission -->
-          <form
-            class="margin-sm"
-            @submit.stop.prevent="handleSubmit"
-          >
+          <form class="margin-sm" @submit.stop.prevent="handleSubmit">
             <div class="border-style">
-              <b-form-file
-                plain
-                @change="captureFile"
-              />
+              <b-form-file plain @change="captureFile" />
             </div>
             <b-form-textarea
               v-model="caption"
@@ -53,11 +51,7 @@
               :max-rows="6"
               class="margin-xs"
             />
-            <b-button
-              class="margin-xs"
-              variant="secondary"
-              @click="handleOk"
-            >
+            <b-button class="margin-xs" variant="secondary" @click="handleOk">
               Upload
             </b-button>
           </form>
@@ -69,7 +63,7 @@
           <img
             class="upload-load"
             src="https://media.giphy.com/media/2A6xoqXc9qML9gzBUE/giphy.gif"
-          >
+          />
         </div>
       </div>
 
@@ -81,10 +75,7 @@
           :item="item"
         >
           <!-- Card UI for post's image & caption text -->
-          <b-card
-            border-variant="secondary"
-            :img-src="item.src"
-          >
+          <b-card border-variant="secondary" :img-src="item.src">
             <p class="home-card-text">
               {{ item.caption }}
             </p>
@@ -96,20 +87,20 @@
 </template>
 
 <script>
-import ipfs from './mixins/ipfs';
-import ZilPayMixin from './mixins/ZilPay'
+import ipfs from "./mixins/ipfs";
+import ZilPayMixin from "./mixins/ZilPay";
 
 export default {
-  name: 'App',
+  name: "App",
   mixins: [ZilPayMixin, ipfs],
   // data variables
   data() {
     return {
-      buffer: '',
-      caption: '',
+      buffer: "",
+      caption: "",
       wallet: {
         account: null
-      },
+      }
     };
   },
   mounted() {
@@ -130,7 +121,6 @@ export default {
     } catch (err) {
       /* eslint-disable */
     }
-
     this.$root.loading = false;
   },
   methods: {
@@ -138,7 +128,7 @@ export default {
       setTimeout(() => {
         this.wallet.account = window.zilPay.wallet.defaultAccount.bech32;
         window.zilPay.wallet.observableAccount().subscribe(account => {
-          console.log('firing off account refresher');
+          console.log("firing off account refresher");
           this.wallet.account = account.bech32;
         });
       }, 1000);
@@ -148,12 +138,12 @@ export default {
      */
     captureFile(file) {
       const reader = new FileReader();
-      if (typeof file !== 'undefined') {
+      if (typeof file !== "undefined") {
         reader.readAsArrayBuffer(file.target.files[0]);
         reader.onloadend = async () => {
           this.buffer = await this.convertToBuffer(reader.result);
         };
-      } else this.buffer = '';
+      } else this.buffer = "";
     },
     /**
      * converts ArrayBuffer to
@@ -168,30 +158,38 @@ export default {
      * it in the Contract via sendHash().
      */
     onSubmit() {
-      alert('Uploading on IPFS...');
+      alert("Uploading on IPFS...");
       this.$root.loading = true;
       let imgHash;
 
-      ipfs.add(this.buffer)
-        .then((hashedImg) => {
+      ipfs
+        .add(this.buffer)
+        .then(hashedImg => {
           imgHash = hashedImg[0].hash;
           return this.convertToBuffer(this.caption);
-        }).then(bufferDesc => ipfs.add(bufferDesc)
-          .then(hashedText => hashedText[0].hash)).then((textHash) => {
+        })
+        .then(bufferDesc =>
+          ipfs.add(bufferDesc).then(hashedText => hashedText[0].hash)
+        )
+        .then(textHash => {
           this.$root.contract.methods
             .sendHash(imgHash, textHash)
-            .send({ from: this.$root.currentAccount },
+            .send(
+              { from: this.$root.currentAccount },
               (error, transactionHash) => {
-                if (typeof transactionHash !== 'undefined') {
-                  alert('Storing on Ethereum...');
-                  this.$root.contract.once('NewPost',
+                if (typeof transactionHash !== "undefined") {
+                  alert("Storing on Ethereum...");
+                  this.$root.contract.once(
+                    "NewPost",
                     { from: this.$root.currentAccount },
                     () => {
                       this.$root.getPosts();
-                      alert('Operation Finished! Refetching...');
-                    });
+                      alert("Operation Finished! Refetching...");
+                    }
+                  );
                 } else this.$root.loading = false;
-              });
+              }
+            );
         });
     },
     /**
@@ -200,13 +198,12 @@ export default {
      */
     handleOk() {
       if (!this.buffer || !this.caption) {
-        alert('Please fill in the information.');
+        alert("Please fill in the information.");
       } else {
         this.onSubmit();
       }
-    },
-
-  },
+    }
+  }
 };
 </script>
 
@@ -238,8 +235,7 @@ export default {
   margin-bottom: 20px;
 }
 
-
-.home-list{
+.home-list {
   padding: 0;
   list-style: none;
 }
@@ -275,5 +271,4 @@ export default {
 .border-style {
   border: 1px solid #ced4da;
 }
-
 </style>
