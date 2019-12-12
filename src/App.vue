@@ -44,15 +44,48 @@
             <div class="border-style">
               <b-form-file plain @change="captureFile" />
             </div>
-            <b-form-textarea
-              v-model="caption"
-              placeholder="Post description"
-              :rows="3"
-              :max-rows="6"
-              class="margin-xs"
-            />
             <b-button class="margin-xs" variant="secondary" @click="handleOk">
               Upload
+            </b-button>
+          </form>
+        </div>
+        <div
+          v-if="this.$root.$data.loading === true"
+          style="margin-top: 10%; margin-bottom: 5%"
+        >
+          <img
+            class="upload-load"
+            src="https://media.giphy.com/media/2A6xoqXc9qML9gzBUE/giphy.gif"
+          />
+        </div>
+      </div>
+
+      <!-- Register Interface -->
+      <div id="register">
+        <div v-if="this.$root.$data.loading === false">
+          <!-- <p class="lead">Wallet address: {{ wallet.account }}</p> -->
+          <!-- <h1>Post Here!</h1> -->
+          <!-- <h4 v-if="this.$root.$data.walletConnected">Account connected: {{currentAccount}}</h4> -->
+
+          <!-- Form for ipfs hash & metadata registration -->
+          <form class="margin-sm" @submit.stop.prevent="handleSubmit">
+            <b-form-textarea
+              v-model="ipfs_hash"
+              label="ipfs_hash"
+              placeholder="ipfs_hash"
+              :rows="1"
+              :max-rows="1"
+              class="margin-xs"
+            />
+            <b-form-textarea
+              v-model="metadata"
+              placeholder="metadata"
+              :rows="4"
+              :max-rows="16"
+              class="margin-xs"
+            />
+            <b-button class="margin-xs" variant="secondary" @click="handleRegister">
+              Register
             </b-button>
           </form>
         </div>
@@ -82,6 +115,7 @@
           </b-card>
         </li>
       </ul>
+
     </div>
   </div>
 </template>
@@ -96,11 +130,14 @@ export default {
   // data variables
   data() {
     return {
+      filename: "",
       buffer: "",
-      caption: "",
+      // caption: "",
       wallet: {
         account: null
-      }
+      },
+      ipfs_hash: "",
+      metadata: ""
     };
   },
   mounted() {
@@ -133,15 +170,18 @@ export default {
         });
       }, 1000);
     },
-    /* used to catch chosen image &
-     * convert it to ArrayBuffer.
+
+    /* used to catch chosen file
      */
-    captureFile(file) {
+    captureFile(event) {
       const reader = new FileReader();
-      if (typeof file !== "undefined") {
-        reader.readAsArrayBuffer(file.target.files[0]);
+      if (typeof event !== "undefined") {
+        console.log({event});
+        const fileObj = event.target.files[0]
+        reader.readAsArrayBuffer(fileObj);
         reader.onloadend = async () => {
           this.buffer = await this.convertToBuffer(reader.result);
+          this.filename = fileObj.name;
         };
       } else this.buffer = "";
     },
@@ -157,11 +197,20 @@ export default {
      * and retrieves the hashes, then store
      * it in the Contract via sendHash().
      */
-    onSubmit() {
-      alert("Uploading on IPFS...");
+    async onSubmit() {
+      // alert("Uploading to IPFS...");
       this.$root.loading = true;
       let imgHash;
 
+      const hashedImg = await ipfs.add(this.buffer);
+      console.log({hashedImg});
+      imgHash = hashedImg[0].hash;
+      this.ipfs_hash = imgHash;
+      this.metadata  = "{\n  filename : " + this.filename + "\n}";
+      console.log("ipfs_hash =", this.ipfs_hash);
+      this.$root.loading = false;
+
+      /*
       ipfs
         .add(this.buffer)
         .then(hashedImg => {
@@ -191,17 +240,24 @@ export default {
               }
             );
         });
+      */
     },
     /**
      * validates if image & captions
      * are filled before submission.
      */
     handleOk() {
-      if (!this.buffer || !this.caption) {
-        alert("Please fill in the information.");
+      if (!this.buffer) { // || !this.caption) {
+        alert("Please select a file to upload.");
       } else {
         this.onSubmit();
       }
+    },
+
+    async handleRegister() {
+      console.log("handleRegister()");
+      console.log("ipfs_hash =", this.ipfs_hash);
+      console.log("metadata  =", this.metadata);
     }
   }
 };
