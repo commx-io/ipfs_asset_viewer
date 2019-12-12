@@ -123,10 +123,11 @@
 <script>
 import ipfs from "./mixins/ipfs";
 import ZilPayMixin from "./mixins/ZilPay";
+import {ProofIPFS_API} from "./contracts/ProofIPFS_API"
 
 export default {
   name: "App",
-  mixins: [ZilPayMixin, ipfs],
+  mixins: [ZilPayMixin, ipfs], // , ProofIPFS_API],
   // data variables
   data() {
     return {
@@ -165,9 +166,14 @@ export default {
       setTimeout(() => {
         this.wallet.account = window.zilPay.wallet.defaultAccount.bech32;
         window.zilPay.wallet.observableAccount().subscribe(account => {
-          console.log("firing off account refresher");
+          console.log("account changed : account.bech32 =", account.bech32);
           this.wallet.account = account.bech32;
         });
+        window.zilPay.wallet.observableNetwork().subscribe(net => {
+          console.log("network changed : net =", net);
+          this.network = net;
+        });
+
       }, 1000);
     },
 
@@ -206,45 +212,13 @@ export default {
       console.log({hashedImg});
       imgHash = hashedImg[0].hash;
       this.ipfs_hash = imgHash;
-      this.metadata  = "{\n  filename : " + this.filename + "\n}";
+      this.metadata  = "{\nfilename : '" + this.filename + "'\n}";
       console.log("ipfs_hash =", this.ipfs_hash);
       this.$root.loading = false;
 
-      /*
-      ipfs
-        .add(this.buffer)
-        .then(hashedImg => {
-          imgHash = hashedImg[0].hash;
-          return this.convertToBuffer(this.caption);
-        })
-        .then(bufferDesc =>
-          ipfs.add(bufferDesc).then(hashedText => hashedText[0].hash)
-        )
-        .then(textHash => {
-          this.$root.contract.methods
-            .sendHash(imgHash, textHash)
-            .send(
-              { from: this.$root.currentAccount },
-              (error, transactionHash) => {
-                if (typeof transactionHash !== "undefined") {
-                  alert("Storing on Ethereum...");
-                  this.$root.contract.once(
-                    "NewPost",
-                    { from: this.$root.currentAccount },
-                    () => {
-                      this.$root.getPosts();
-                      alert("Operation Finished! Refetching...");
-                    }
-                  );
-                } else this.$root.loading = false;
-              }
-            );
-        });
-      */
     },
     /**
-     * validates if image & captions
-     * are filled before submission.
+     * validates if file buffer is valid before submission
      */
     handleOk() {
       if (!this.buffer) { // || !this.caption) {
@@ -258,6 +232,31 @@ export default {
       console.log("handleRegister()");
       console.log("ipfs_hash =", this.ipfs_hash);
       console.log("metadata  =", this.metadata);
+
+      const zilliqa = window.zilPay;
+
+      const chain_id_map = {
+        private : 111,
+        testnet : 333,
+        mainnet : 1
+      };
+      // https://zilpay.xyz/Documentation/zilliqa-provider/#properties
+      const chain_id = chain_id_map[zilliqa.wallet.net];
+      console.log({chain_id});
+     
+      const result = await zilliqa.blockchain.getBlockChainInfo();
+      console.log("blockchain.getBlockChainInfo() =", result);
+
+      const contract_proof_ipfs = zilliqa.contracts.at('zil13jjcwrph3zrz04ua45gsz6295wycaa7r5ar4c9'); // Testnet v1.0
+      // const contract_proof_ipfs = zilliqa.contracts.at('0x97Ef723bC7e64cDD01E40B753c0C1f0d2A98Bf6D'); // Kaya Testnet
+      console.log({contract_proof_ipfs});
+
+      const contract_api = new ProofIPFS_API(contract_proof_ipfs, chain_id);
+      
+      console.log('calling getPrice())');
+      console.log(await contract_api.getPrice() );
+      const tx1 = await contract_api.registerOwnership(this.ipfs_hash, this.metadata);
+	    console.log({tx1});
     }
   }
 };
