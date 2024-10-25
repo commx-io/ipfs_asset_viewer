@@ -17,7 +17,7 @@
     "ipfs-http-client": "^29.1.0",
     "jquery": "^3.4.0",
     "popper.js": "^1.12.9",
-    "vue": "^2.6.10",
+    "vue": "^3.0.0",
     "vue-json-tree-view": "^2.1.4"
   },
   "devDependencies": {
